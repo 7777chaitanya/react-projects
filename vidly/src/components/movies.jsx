@@ -3,12 +3,15 @@ import { getMovies } from '../services/fakeMovieService';
 import Like from './common/like';
 import Pagination from './common/pagination';
 import { paginate } from '../utils/paginate';
+import ListGroup from './common/listGroup';
+
 
 class Movies extends Component {
     state = {
         movies : getMovies(),
         pageSize : 4,
-        currentPage : 1
+        currentPage : 1,
+        currentGenre : "All Genres"
       }
 
     printObject(){
@@ -28,10 +31,23 @@ class Movies extends Component {
             this.setState({currentPage : page});
     }
 
+    handleGenre = (genre) => {
+        this.setState({currentGenre : genre});
+        if(genre === "All Genres"){
+            const movies = getMovies();
+            this.setState({movies});
+        }
+
+        else{
+            const movies = getMovies().filter(movie => movie.genre.name === genre);
+            this.setState({movies});
+        }
+    }
+
 
     render() { 
         const count  = this.state.movies.length;
-        const {movies, pageSize, currentPage} = this.state;
+        const {movies, pageSize, currentPage, currentGenre} = this.state;
         // const paginatedMoviesArray = movies.slice(pageSize*(currentPage-1),pageSize*currentPage);
 
         if(count === 0) return <p><i><b>There are no movies in the database</b></i></p>
@@ -69,6 +85,8 @@ class Movies extends Component {
                         pageSize={pageSize} 
                         currentPage={currentPage}
                         pageChange={this.handlePageChange} />
+
+                    <ListGroup onGenreChange={this.handleGenre} currentGenre={currentGenre}/>
                 </React.Fragment>
             );
     }
