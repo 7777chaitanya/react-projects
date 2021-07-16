@@ -1,15 +1,15 @@
 import React from 'react'
-import { genres } from '../../services/fakeGenreService';
 
 const ListGroup = (props) => {
-    const genreOnly = genres.map(genre => genre.name);
-    const genreList = ["All Genres", ...genreOnly];
-    console.log(genreList);
+    const {currentItem, items, onItemChange} = props;
+    const itemOnly = items.map(item => item.name);
+    const itemsList = ["All Genres", ...itemOnly];
+    console.log(itemsList);
     return (
         <ul className="list-group">
-            {genreList.map(genre => <li key={genre} className={props.currentGenre === genre ? "list-group-item active" : "list-group-item"} onClick={() => props.onGenreChange(genre)}>{genre}</li>)}
+            {itemsList.map(item => <li key={item} className={currentItem === item ? "list-group-item active" : "list-group-item"} onClick={() => onItemChange(item)}>{item}</li>)}
         </ul>  
     );
-}
+}   
  
 export default ListGroup;

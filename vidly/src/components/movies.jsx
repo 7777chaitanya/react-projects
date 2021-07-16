@@ -1,18 +1,26 @@
 import React, { Component } from 'react';
 import { getMovies } from '../services/fakeMovieService';
-import Like from './common/like';
 import Pagination from './common/pagination';
-import { paginate } from '../utils/paginate';
 import ListGroup from './common/listGroup';
-
+import { genres } from '../services/fakeGenreService';
+import TableLayout from './tableLayout';
 
 class Movies extends Component {
     state = {
-        movies : getMovies(),
+        movies : [],
+        genres : [],
         pageSize : 4,
         currentPage : 1,
         currentGenre : "All Genres"
       }
+
+
+    componentDidMount(){
+        this.setState({
+            movies : getMovies(),
+            genres : genres
+        })
+    }
 
     printObject(){
         console.log(getMovies);
@@ -24,7 +32,7 @@ class Movies extends Component {
     }
 
     handleLike = () => {
-        
+       
     }
 
     handlePageChange = page => {
@@ -40,55 +48,56 @@ class Movies extends Component {
 
         else{
             const movies = getMovies().filter(movie => movie.genre.name === genre);
-            this.setState({movies});
+            this.setState({movies, currentPage : 1});
         }
     }
 
-
+    handleSort = (path) => {
+        movies = this.state.movies.sort((a,b) => {
+            return a[path]-b[path]
+        });
+        this.setState({movies});
+    }
+    
     render() { 
         const count  = this.state.movies.length;
-        const {movies, pageSize, currentPage, currentGenre} = this.state;
+        const {movies, pageSize, currentPage, currentGenre, genres} = this.state;
         // const paginatedMoviesArray = movies.slice(pageSize*(currentPage-1),pageSize*currentPage);
 
         if(count === 0) return <p><i><b>There are no movies in the database</b></i></p>
 
         return (
-            <React.Fragment>
-                    <p><i><b>There are {count} movies in the database</b></i></p>
+            <div className="row">
+                <div className="col-3">
+                    <ListGroup 
+                    onItemChange={this.handleGenre} 
+                    currentItem={currentGenre} 
+                    items={genres}
+                    />
+
+                </div>
+                <div className="col"><p><i><b>There are {count} movies in the database</b></i></p>
                     <main>
-                        <table className="table">
-                            <thead className="table-primary">
-                                <tr>
-                                    <th scope="col">Title</th>
-                                    <th scope="col">Genre</th>
-                                    <th scope="col">NumberInStock</th>
-                                    <th scope="col">DailyRentalRate</th>
-                                    <th scope="col">Like</th>
-                                    <th scope="col"></th>
-                                </tr>
-                            </thead>
-                            <tbody className="table-secondary">
-                                {paginate(movies, currentPage, pageSize).map(movie => <tr key={movie._id}>
-                                    <th>{movie.title}</th>
-                                    <th>{movie.genre.name}</th>
-                                    <th>{movie.numberInStock}</th>
-                                    <th>{movie.dailyRentalRate}</th>
-                                    <th><Like onClick={this.handleLike}/></th>
-                                    <th><button type="button" className="btn btn-danger" onClick={() => {this.handleDelete(movie._id)}}>Delete</button></th>
-                                </tr>)
-                                }
-                            </tbody>
-                        </table>
+                        <TableLayout
+                            movies={this.state.movies}
+                            currentPage={this.state.currentPage}
+                            pageSize={this.state.pageSize}
+                            onDelete={this.handleDelete}
+                            handleSort={this.handleSort}
+                        />
                     </main>
                     <Pagination 
                         itemsCount={count} 
                         pageSize={pageSize} 
                         currentPage={currentPage}
-                        pageChange={this.handlePageChange} />
+                        pageChange={this.handlePageChange} 
+                    />
+                </div>
+                
+                    
 
-                    <ListGroup onGenreChange={this.handleGenre} currentGenre={currentGenre}/>
-                </React.Fragment>
-            );
+            </div>
+        );
     }
 }
  
